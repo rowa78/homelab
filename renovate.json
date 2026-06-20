@@ -1,0 +1,24 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["every weekend"],
+  "timezone": "Europe/Berlin",
+  "packageRules": [
+    {
+      "matchManagers": ["docker-compose", "dockerfile"],
+      "pinDigests": true,
+      "automerge": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["apps/webhook/Dockerfile"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>[^\\n]+)\\nARG \\w+_VERSION=(?<currentValue>[^\\n]+)"
+      ],
+      "datasourceTemplate": "{{datasource}}",
+      "versioningTemplate": "semver"
+    }
+  ]
+}

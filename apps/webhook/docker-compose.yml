@@ -1,0 +1,28 @@
+services:
+  webhook:
+    build: .
+    restart: unless-stopped
+    environment:
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+    command:
+      - -hooks
+      - /homelab/apps/webhook/hooks.json
+      - -template
+      - -verbose
+      - -port
+      - "9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/homelab:/homelab
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.webhook.rule=Host(`webhook.${DOMAIN}`)
+      - traefik.http.routers.webhook.entrypoints=websecure
+      - traefik.http.routers.webhook.tls.certresolver=letsencrypt
+      - traefik.http.services.webhook.loadbalancer.server.port=9000
+
+networks:
+  proxy:
+    external: true

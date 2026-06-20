@@ -1,0 +1,10 @@
+services:
+  renovate:
+    image: renovate/renovate:39.274.0
+    restart: "no"
+    environment:
+      - RENOVATE_TOKEN=${RENOVATE_TOKEN}
+      - RENOVATE_REPOSITORIES=${RENOVATE_REPOSITORIES}
+      - LOG_LEVEL=info
+    volumes:
+      - ${DATA_DIR}/renovate:/tmp/renovate

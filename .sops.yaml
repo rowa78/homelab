@@ -1,0 +1,5 @@
+creation_rules:
+  - path_regex: ^secrets\.enc\.env$
+    age: "age1REPLACE_WITH_YOUR_SERVER_PUBLIC_KEY"
+    # Generate on server: age-keygen -o .age-key.txt
+    # Public key is printed by age-keygen, or retrieve with: age-keygen -y .age-key.txt

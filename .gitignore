@@ -1,0 +1,11 @@
+# Decrypted secrets - never commit
+.env
+secrets.env
+.age-key.txt
+
+# App data - backed up separately via restic/rsync
+data/*
+!data/**/.gitkeep
+
+# Logs
+*.log
