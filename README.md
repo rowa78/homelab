@@ -146,6 +146,33 @@ git push
 
 ---
 
+## Neuen Host hinzufügen
+
+```bash
+# 1. Verzeichnis anlegen
+mkdir -p hosts/<hostname>
+
+# 2. Stacks zuweisen
+echo "traefik" >> hosts/<hostname>/stacks
+
+# 3. SSH Deploy Key auf Zielhost eintragen
+ssh <hostname> "echo '<deploy-public-key>' >> ~/.ssh/authorized_keys"
+
+# 4. Docker + docker-compose auf Zielhost installieren
+# 5. Committen + Pushen → nächstes Deployment schließt den Host ein
+```
+
+**Deploy Key generieren** (einmalig, lokal):
+```bash
+ssh-keygen -t ed25519 -C "homelab-deploy" -f ~/.ssh/homelab_deploy
+# Private Key base64-kodieren und in secrets.enc.env als DEPLOY_SSH_KEY_B64 speichern
+base64 -w 0 ~/.ssh/homelab_deploy
+# Public Key auf allen Zielhosts in ~/.ssh/authorized_keys eintragen
+cat ~/.ssh/homelab_deploy.pub
+```
+
+---
+
 ## Neuen Stack hinzufügen
 
 ```bash

@@ -3,11 +3,11 @@ FROM alpine:3.21
 ARG TARGETARCH=amd64
 
 # renovate: datasource=github-releases depName=getsops/sops
-ARG SOPS_VERSION=v3.9.4
+ARG SOPS_VERSION=v3.13.1
 # renovate: datasource=github-releases depName=adnanh/webhook
 ARG WEBHOOK_VERSION=2.8.2
 
-RUN apk add --no-cache git age docker-cli docker-compose curl bash && \
+RUN apk add --no-cache git age docker-cli docker-compose curl bash rsync openssh-client && \
     curl -fsSL -o /usr/local/bin/sops \
       "https://github.com/getsops/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.${TARGETARCH}" && \
     chmod +x /usr/local/bin/sops && \

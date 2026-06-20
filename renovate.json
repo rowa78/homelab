@@ -13,7 +13,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["apps/webhook/Dockerfile"],
+      "fileMatch": ["apps/webhook/Dockerfile", "scripts/setup-server\\.sh"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>[^\\n]+)\\nARG \\w+_VERSION=(?<currentValue>[^\\n]+)"
       ],
