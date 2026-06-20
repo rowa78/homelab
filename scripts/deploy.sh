@@ -15,13 +15,17 @@ SOPS_AGE_KEY_FILE="$REPO/.age-key.txt" \
   sops --decrypt "$REPO/secrets.enc.env" > "$REPO/.env"
 echo "[deploy] Secrets decrypted"
 
-# Write SSH deploy key (only needed for remote hosts)
-SSH_KEY_FILE=$(mktemp)
-chmod 600 "$SSH_KEY_FILE"
-echo "$DEPLOY_SSH_KEY_B64" | base64 -d > "$SSH_KEY_FILE"
-trap "rm -f '$SSH_KEY_FILE'" EXIT
+SSH_KEY_FILE=""
+SSH_OPTS=()
 
-SSH_OPTS=(-i "$SSH_KEY_FILE" -o StrictHostKeyChecking=accept-new -o BatchMode=yes)
+setup_ssh() {
+  [ -n "$SSH_KEY_FILE" ] && return  # bereits initialisiert
+  SSH_KEY_FILE=$(mktemp)
+  chmod 600 "$SSH_KEY_FILE"
+  echo "${DEPLOY_SSH_KEY_B64:-}" | base64 -d > "$SSH_KEY_FILE"
+  trap "rm -f '$SSH_KEY_FILE'" EXIT
+  SSH_OPTS=(-i "$SSH_KEY_FILE" -o StrictHostKeyChecking=accept-new -o BatchMode=yes)
+}
 
 deploy_stack_local() {
   local stack="$1"
@@ -54,7 +58,9 @@ for host_dir in "$REPO"/hosts/*/; do
       deploy_stack_local "$stack"
     done < "$stacks_file"
   else
-    # Remote-Host: Repo synchronisieren, dann via SSH deployen
+    # Remote-Host: SSH-Key lazy initialisieren
+    setup_ssh
+    # Repo synchronisieren, dann via SSH deployen
     rsync -az --delete \
       -e "ssh ${SSH_OPTS[*]}" \
       --exclude='.git/' \
