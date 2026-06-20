@@ -1,0 +1,17 @@
+http:
+  routers:
+    diskstation:
+      rule: Host(`{{ env "DISKSTATION_DOMAIN" }}`)
+      entryPoints:
+        - websecure
+      service: diskstation
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - geoblock@file
+
+  services:
+    diskstation:
+      loadBalancer:
+        servers:
+          - url: http://192.168.0.3:5000

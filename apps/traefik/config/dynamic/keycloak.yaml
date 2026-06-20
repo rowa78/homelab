@@ -1,0 +1,17 @@
+http:
+  routers:
+    keycloak:
+      rule: Host(`auth.{{ env "DOMAIN" }}`)
+      entryPoints:
+        - websecure
+      service: keycloak
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - geoblock@file
+
+  services:
+    keycloak:
+      loadBalancer:
+        servers:
+          - url: http://192.168.0.3:9091

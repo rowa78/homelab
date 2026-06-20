@@ -1,37 +1,43 @@
 services:
-  traefik:
-    image: traefik:v3.3.5
+
+  valkey:
+    image: valkey/valkey:9.1.0
+    container_name: traefik-valkey
+    command: valkey-server --save 60 1 --loglevel warning
+    networks:
+      - traefik-public
+      - traefik-internal
+    volumes:
+      - ${DATA_DIR}/traefik/valkey:/data
     restart: unless-stopped
+
+  traefik:
+    image: traefik:v3.7.4
+    container_name: traefik
     command:
-      - --api.dashboard=true
-      - --log.level=INFO
-      - --entrypoints.web.address=:80
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
-      - --entrypoints.websecure.address=:443
-      - --providers.docker=true
-      - --providers.docker.exposedByDefault=false
-      - --providers.docker.network=proxy
-      - --certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}
-      - --certificatesresolvers.letsencrypt.acme.storage=/data/acme.json
-      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --configFile=/etc/traefik/traefik.yaml
+    environment:
+      - DOMAIN=${DOMAIN}
+      - DISKSTATION_DOMAIN=${DISKSTATION_DOMAIN}
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${TRAEFIK_ACME_EMAIL}
+    depends_on:
+      - valkey
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${DATA_DIR}/traefik:/data
+      - ${DATA_DIR}/traefik/letsencrypt:/letsencrypt
+      - ${DATA_DIR}/traefik/auth:/etc/traefik/auth:ro
+      - ./config/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./config/dynamic:/etc/traefik/dynamic:ro
     networks:
-      - proxy
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${DOMAIN}`)
-      - traefik.http.routers.traefik-dashboard.entrypoints=websecure
-      - traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt
-      - traefik.http.routers.traefik-dashboard.service=api@internal
-      - traefik.http.routers.traefik-dashboard.middlewares=traefik-auth
-      - traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}
+      - traefik-public
+      - traefik-internal
+    restart: unless-stopped
 
 networks:
-  proxy:
-    external: true
+  traefik-public:
+    name: traefik-public
+  traefik-internal:
+    name: traefik-internal

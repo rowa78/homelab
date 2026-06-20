@@ -15,7 +15,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/homelab:/homelab
     networks:
-      - proxy
+      - traefik-public
     labels:
       - traefik.enable=true
       - traefik.http.routers.webhook.rule=Host(`webhook.${DOMAIN}`)
@@ -24,5 +24,5 @@ services:
       - traefik.http.services.webhook.loadbalancer.server.port=9000
 
 networks:
-  proxy:
+  traefik-public:
     external: true

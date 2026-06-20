@@ -1,0 +1,16 @@
+http:
+  routers:
+    traefik-dashboard:
+      rule: Host(`traefik.{{ env "DOMAIN" }}`)
+      priority: 10
+      entryPoints:
+        - websecure
+      service: api@internal
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - geoblock@file
+        - dashboard-root@file
+        - dashboard-trailing-slash@file
+        - oauth2-errors@file
+        - oauth2-auth@file

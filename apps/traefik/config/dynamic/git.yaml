@@ -1,0 +1,17 @@
+http:
+  routers:
+    git:
+      rule: Host(`git.{{ env "DOMAIN" }}`)
+      entryPoints:
+        - websecure
+      service: git
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - geoblock@file
+
+  services:
+    git:
+      loadBalancer:
+        servers:
+          - url: http://192.168.0.3:3000
