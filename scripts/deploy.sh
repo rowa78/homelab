@@ -29,7 +29,7 @@ setup_ssh() {
 
 deploy_stack_local() {
   local stack="$1"
-  local compose_file="$REPO/apps/$stack/docker compose.yml"
+  local compose_file="$REPO/apps/$stack/docker-compose.yml"
   [ -f "$compose_file" ] || { echo "[deploy]   Warnung: $compose_file nicht gefunden, übersprungen"; return; }
   docker compose -f "$compose_file" --env-file "$REPO/.env" up -d --remove-orphans
 }
@@ -38,7 +38,7 @@ deploy_stack_remote() {
   local host="$1"
   local stack="$2"
   ssh "${SSH_OPTS[@]}" "$host" \
-    "docker compose -f /opt/homelab/apps/$stack/docker compose.yml \
+    "docker compose -f /opt/homelab/apps/$stack/docker-compose.yml \
      --env-file /opt/homelab/.env up -d --remove-orphans"
 }
 
