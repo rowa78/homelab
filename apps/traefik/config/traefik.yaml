@@ -18,6 +18,9 @@ entryPoints:
     address: ":443"
 
 providers:
+  docker:
+    exposedByDefault: false
+    network: traefik-public
   file:
     directory: /etc/traefik/dynamic
     watch: true
