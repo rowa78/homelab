@@ -2,6 +2,7 @@
 .env
 secrets.env
 .age-key.txt
+.decrypted~*
 
 # App data - backed up separately via restic/rsync
 data/*
