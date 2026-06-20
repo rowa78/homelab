@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-REPO=/homelab
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOCAL_HOST="infra"
 
 echo "[deploy] Starting deployment at $(date)"
