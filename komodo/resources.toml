@@ -1,0 +1,102 @@
+##
+## Komodo Resource Sync
+## Alle Ressourcen werden aus dieser Datei verwaltet.
+## ResourceSync in Komodo UI einmalig anlegen:
+##   Repo: rowa78/homelab | Branch: main | File: komodo/resources.toml
+##
+
+## ============================================================
+## SERVER
+## Namen müssen mit den in Komodo ongeboardeten Servern übereinstimmen
+## ============================================================
+
+[[server]]
+name = "infra"
+[server.config]
+enabled = true
+
+## ============================================================
+## STACKS
+## ============================================================
+
+[[stack]]
+name = "traefik"
+[stack.config]
+server = "infra"
+repo = "rowa78/homelab"
+branch = "main"
+compose_file = "apps/traefik/docker-compose.yml"
+[[stack.config.pre_deploy]]
+path = "sh"
+args = [
+  "-c",
+  "sops -d /opt/homelab/common.enc.env > /opt/homelab/apps/traefik/.env && sops -d /opt/homelab/apps/traefik/secrets.enc.env >> /opt/homelab/apps/traefik/.env"
+]
+
+[[stack]]
+name = "oauth2-proxy"
+[stack.config]
+server = "infra"
+repo = "rowa78/homelab"
+branch = "main"
+compose_file = "apps/oauth2-proxy/docker-compose.yml"
+[[stack.config.pre_deploy]]
+path = "sh"
+args = [
+  "-c",
+  "sops -d /opt/homelab/common.enc.env > /opt/homelab/apps/oauth2-proxy/.env && sops -d /opt/homelab/apps/oauth2-proxy/secrets.enc.env >> /opt/homelab/apps/oauth2-proxy/.env"
+]
+
+[[stack]]
+name = "renovate"
+[stack.config]
+server = "infra"
+repo = "rowa78/homelab"
+branch = "main"
+compose_file = "apps/renovate/docker-compose.yml"
+[[stack.config.pre_deploy]]
+path = "sh"
+args = [
+  "-c",
+  "sops -d /opt/homelab/common.enc.env > /opt/homelab/apps/renovate/.env && sops -d /opt/homelab/apps/renovate/secrets.enc.env >> /opt/homelab/apps/renovate/.env"
+]
+
+[[stack]]
+name = "komodo"
+[stack.config]
+server = "infra"
+repo = "rowa78/homelab"
+branch = "main"
+compose_file = "apps/komodo/docker-compose.yml"
+[[stack.config.pre_deploy]]
+path = "sh"
+args = [
+  "-c",
+  "sops -d /opt/homelab/common.enc.env > /opt/homelab/apps/komodo/.env && sops -d /opt/homelab/apps/komodo/secrets.enc.env >> /opt/homelab/apps/komodo/.env"
+]
+
+## ============================================================
+## PROCEDURES
+## ============================================================
+
+## Alle Stacks in der richtigen Reihenfolge deployen
+[[procedure]]
+name = "deploy-all"
+[procedure.config]
+[[procedure.config.stage]]
+name = "Infrastruktur"
+[[procedure.config.stage.execution]]
+execution.type = "DeployStack"
+execution.params.stack = "traefik"
+[[procedure.config.stage.execution]]
+execution.type = "DeployStack"
+execution.params.stack = "oauth2-proxy"
+
+[[procedure.config.stage]]
+name = "Services"
+[[procedure.config.stage.execution]]
+execution.type = "DeployStack"
+execution.params.stack = "renovate"
+[[procedure.config.stage.execution]]
+execution.type = "DeployStack"
+execution.params.stack = "komodo"
