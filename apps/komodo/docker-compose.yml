@@ -28,6 +28,8 @@ services:
       KOMODO_INIT_ADMIN_PASSWORD: ${KOMODO_INIT_ADMIN_PASSWORD}
     volumes:
       - komodo-keys:/etc/komodo/keys
+    ports:
+      - 9120:9120
     networks:
       - komodo-internal
       - traefik-public
