@@ -6,6 +6,24 @@
 ##
 
 ## ============================================================
+## GIT PROVIDER & ACCOUNT
+## Token wird als Komodo-Variable angelegt:
+##   UI → Settings → Variables → New → Name: GITHUB_TOKEN, Secret: true
+## ============================================================
+
+[[git_provider]]
+name = "github"
+[git_provider.config]
+domain = "github.com"
+https = true
+
+[[git_account]]
+name = "rowa78"
+[git_account.config]
+provider = "github"
+token = "[[GITHUB_TOKEN]]"
+
+## ============================================================
 ## SERVER
 ## Namen müssen mit den in Komodo ongeboardeten Servern übereinstimmen
 ## ============================================================
@@ -25,6 +43,7 @@ name = "traefik"
 server = "infra"
 repo = "rowa78/homelab"
 branch = "main"
+git_account = "rowa78"
 compose_file = "apps/traefik/docker-compose.yml"
 [[stack.config.pre_deploy]]
 path = "sh"
@@ -39,6 +58,7 @@ name = "oauth2-proxy"
 server = "infra"
 repo = "rowa78/homelab"
 branch = "main"
+git_account = "rowa78"
 compose_file = "apps/oauth2-proxy/docker-compose.yml"
 [[stack.config.pre_deploy]]
 path = "sh"
@@ -53,6 +73,7 @@ name = "renovate"
 server = "infra"
 repo = "rowa78/homelab"
 branch = "main"
+git_account = "rowa78"
 compose_file = "apps/renovate/docker-compose.yml"
 [[stack.config.pre_deploy]]
 path = "sh"
@@ -67,6 +88,7 @@ name = "komodo"
 server = "infra"
 repo = "rowa78/homelab"
 branch = "main"
+git_account = "rowa78"
 compose_file = "apps/komodo/docker-compose.yml"
 [[stack.config.pre_deploy]]
 path = "sh"
