@@ -1,0 +1,13 @@
+services:
+  periphery:
+    image: ghcr.io/moghtech/komodo-periphery:latest
+    restart: unless-stopped
+    environment:
+      PERIPHERY_CORE_ADDRESS: wss://komodo.${DOMAIN}
+      SOPS_AGE_KEY_FILE: /opt/homelab/.age-key.txt
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/homelab:/opt/homelab
+      - /usr/local/bin/sops:/usr/local/bin/sops:ro
+    ports:
+      - "8120:8120"

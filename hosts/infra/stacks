@@ -1,4 +1,0 @@
-# Infrastruktur-Host (lokales Deployment, kein SSH)
-traefik
-oauth2-proxy
-webhook

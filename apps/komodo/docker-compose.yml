@@ -1,0 +1,62 @@
+services:
+
+  mongo:
+    image: mongo:8.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${KOMODO_DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${KOMODO_DB_PASSWORD}
+    volumes:
+      - ${DATA_DIR}/komodo/mongo:/data/db
+    networks:
+      - komodo-internal
+
+  core:
+    image: ghcr.io/moghtech/komodo-core:latest
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      KOMODO_DATABASE_ADDRESS: mongo:27017
+      KOMODO_DATABASE_USERNAME: ${KOMODO_DB_USERNAME}
+      KOMODO_DATABASE_PASSWORD: ${KOMODO_DB_PASSWORD}
+      KOMODO_JWT_SECRET: ${KOMODO_JWT_SECRET}
+      KOMODO_WEBHOOK_SECRET: ${KOMODO_WEBHOOK_SECRET}
+      KOMODO_HOST: https://komodo.${DOMAIN}
+      KOMODO_INIT_ADMIN_USERNAME: ${KOMODO_INIT_ADMIN_USERNAME}
+      KOMODO_INIT_ADMIN_PASSWORD: ${KOMODO_INIT_ADMIN_PASSWORD}
+    volumes:
+      - komodo-keys:/etc/komodo/keys
+    networks:
+      - komodo-internal
+      - traefik-public
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.komodo.rule=Host(`komodo.${DOMAIN}`)
+      - traefik.http.routers.komodo.entrypoints=websecure
+      - traefik.http.routers.komodo.tls.certresolver=letsencrypt
+      - traefik.http.routers.komodo.middlewares=geoblock@file
+      - traefik.http.services.komodo.loadbalancer.server.port=9120
+
+  periphery:
+    image: ghcr.io/moghtech/komodo-periphery:latest
+    restart: unless-stopped
+    environment:
+      PERIPHERY_CORE_ADDRESS: ws://core:9120
+      SOPS_AGE_KEY_FILE: /opt/homelab/.age-key.txt
+    volumes:
+      - komodo-keys:/etc/komodo/keys
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/homelab:/opt/homelab
+      - /usr/local/bin/sops:/usr/local/bin/sops:ro
+    networks:
+      - komodo-internal
+
+volumes:
+  komodo-keys:
+
+networks:
+  komodo-internal:
+    name: komodo-internal
+  traefik-public:
+    external: true

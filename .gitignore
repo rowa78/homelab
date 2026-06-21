@@ -1,6 +1,8 @@
 # Decrypted secrets - never commit
 .env
+common.env
 secrets.env
+apps/**/.env
 .age-key.txt
 .decrypted~*
 
